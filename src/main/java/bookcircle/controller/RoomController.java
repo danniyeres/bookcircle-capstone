@@ -1,0 +1,36 @@
+package bookcircle.controller;
+
+import bookcircle.dto.RoomDtos;
+import bookcircle.service.RoomService;
+import bookcircle.util.AuthUtil;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/rooms")
+public class RoomController {
+
+    private final RoomService roomService;
+
+    public RoomController(RoomService roomService) {
+        this.roomService = roomService;
+    }
+
+    @PostMapping
+    public RoomDtos.RoomResponse create(@Valid @RequestBody RoomDtos.CreateRoomRequest req) {
+        return roomService.createRoom(AuthUtil.principal().userId(), req);
+    }
+
+    @PostMapping("/{roomId}/join")
+    public void join(@PathVariable Long roomId) {
+        roomService.joinRoom(AuthUtil.principal().userId(), roomId);
+    }
+
+    // H3 query requirement
+    @GetMapping("/by-h3")
+    public List<RoomDtos.RoomResponse> byH3(@RequestParam String h3Index) {
+        return roomService.findByH3(h3Index);
+    }
+}

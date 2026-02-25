@@ -1,0 +1,111 @@
+package bookcircle.service;
+
+import bookcircle.domain.RoomMemberRole;
+import bookcircle.dto.RoomDtos;
+import bookcircle.entity.Book;
+import bookcircle.entity.Room;
+import bookcircle.entity.RoomMember;
+import bookcircle.entity.User;
+import bookcircle.exception.ApiException;
+import bookcircle.repo.BookRepository;
+import bookcircle.repo.RoomMemberRepository;
+import bookcircle.repo.RoomRepository;
+import bookcircle.repo.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class RoomService {
+
+    private final RoomRepository roomRepository;
+    private final RoomMemberRepository roomMemberRepository;
+    private final UserRepository userRepository;
+    private final H3Service h3Service;
+    private final AuditService auditService;
+    private final BookRepository bookRepository;
+
+
+    @Transactional
+    public RoomDtos.RoomResponse createRoom(Long actorUserId, RoomDtos.CreateRoomRequest req) {
+        User owner = userRepository.findById(actorUserId)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+
+        String h3Index = req.h3Index();
+        if (h3Index == null || h3Index.isBlank()) {
+            if (req.lat() == null || req.lon() == null) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Provide either h3Index or (lat, lon)" );
+            }
+            int res = req.resolution() == null ? 9 : req.resolution();
+            h3Index = h3Service.toH3(req.lat(), req.lon(), res);
+        }
+
+
+        Room room = new Room();
+        room.setName(req.name());
+        room.setOwner(owner);
+        room.setH3Index(h3Index);
+
+        Book book = bookRepository.findById(req.bookId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Book not found"));
+        room.setBook(book);
+
+        room = roomRepository.save(room);
+
+        RoomMember m = new RoomMember();
+        m.setRoom(room);
+        m.setUser(owner);
+        m.setRole(RoomMemberRole.OWNER);
+        roomMemberRepository.save(m);
+
+        auditService.log(actorUserId, "ROOM_CREATED", "Room", room.getId(), "h3=" + h3Index);
+
+        return new RoomDtos.RoomResponse(
+                room.getId(),
+                room.getName(),
+                book.getId(),
+                book.getTitle(),
+                room.getH3Index(),
+                owner.getId()
+        );
+    }
+
+    @Transactional
+    public void joinRoom(Long actorUserId, Long roomId) {
+        var user = userRepository.findById(actorUserId)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User not found"));
+        var room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        if (roomMemberRepository.findByRoom_IdAndUser_Id(roomId, actorUserId).isPresent()) {
+            return;
+        }
+
+        RoomMember m = new RoomMember();
+        m.setRoom(room);
+        m.setUser(user);
+        m.setRole(RoomMemberRole.MEMBER);
+        roomMemberRepository.save(m);
+
+        auditService.log(actorUserId, "ROOM_JOINED", "Room", roomId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomDtos.RoomResponse> findByH3(String h3Index) {
+        return roomRepository.findByH3Index(h3Index).stream()
+
+                .map(r -> new RoomDtos.RoomResponse(
+                        r.getId(),
+                        r.getName(),
+                        r.getBook().getId(),
+                        r.getBook().getTitle(),
+                        r.getH3Index(),
+                        r.getOwner().getId()))
+                .toList();
+    }
+}
