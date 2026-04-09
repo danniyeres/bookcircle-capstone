@@ -24,12 +24,12 @@ Based on the repository analysis (especially the backend API architecture), the 
 
 ## Technology Stack
 
-### Backend (`danniyeres/bookcircle-capstone`)
+### Backend (`https://github.com/danniyeres/bookcircle-capstone.git`)
 * **Language & Framework:** Written entirely in Java. Based on the file structure (`pom.xml`) and endpoint styles, it is powered by **Spring Boot**.
 * **Database & API:** API documentation is generated via Swagger / OpenAPI. It features comprehensive REST controllers for authentication, books, rooms, comments, and progress.
 * **Geo-indexing:** Implements a dedicated utility endpoint (`/h3/encode`) to convert latitude and longitude into an H3 index.
 
-### Frontend (`Zhasulann06/bookcircle-frontend`)
+### Frontend (`https://github.com/Zhasulann06/bookcircle-frontend.git`)
 * **Tools:** Built with **React** using the **Vite** bundler.
 * **Language:** JavaScript (with basic ESLint configuration).
 * **State:** Currently, the repository contains a foundational app template. Its main goal is to provide the user interface for interacting with the backend API (maps for finding clubs, reading progress interfaces, registration forms, and chats).
