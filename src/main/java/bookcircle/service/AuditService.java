@@ -2,10 +2,14 @@ package bookcircle.service;
 
 import bookcircle.entity.AuditLog;
 import bookcircle.repo.AuditLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuditService {
+    private static final Logger log = LoggerFactory.getLogger(AuditService.class);
+
     private final AuditLogRepository auditLogRepository;
 
     public AuditService(AuditLogRepository auditLogRepository) {
@@ -20,5 +24,7 @@ public class AuditService {
         a.setEntityId(entityId);
         a.setDetails(details);
         auditLogRepository.save(a);
+        log.info("Audit persisted actorUserId={} action={} entityType={} entityId={}",
+                actorUserId, action, entityType, entityId);
     }
 }

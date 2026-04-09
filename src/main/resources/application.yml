@@ -21,3 +21,8 @@ app:
     accessTokenMinutes: 60
   h3:
     defaultResolution: 9
+
+logging:
+  level:
+    root: INFO
+    bookcircle: INFO

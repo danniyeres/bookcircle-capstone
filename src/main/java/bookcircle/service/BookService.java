@@ -3,6 +3,8 @@ package bookcircle.service;
 import bookcircle.entity.Book;
 import bookcircle.repo.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,16 +13,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookService {
 
+    private static final Logger log = LoggerFactory.getLogger(BookService.class);
+
     private final BookRepository bookRepository;
 
     public List<Book> findBooks(String query) {
+        List<Book> books;
         if (query == null || query.isBlank()) {
-            return bookRepository.findAll();
+            books = bookRepository.findAll();
+            log.info("Books fetched without query count={}", books.size());
+            return books;
         }
-        return bookRepository.findByTitleContainingIgnoreCase(query);
+        books = bookRepository.findByTitleContainingIgnoreCase(query);
+        log.info("Books fetched query='{}' count={}", query, books.size());
+        return books;
     }
 
     public Book createBook(Book book) {
-        return bookRepository.save(book);
+        log.info("Create book title='{}' author='{}'", book.getTitle(), book.getAuthor());
+        Book saved = bookRepository.save(book);
+        log.info("Book created bookId={}", saved.getId());
+        return saved;
     }
 }
