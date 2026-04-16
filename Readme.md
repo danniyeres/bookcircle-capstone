@@ -65,9 +65,6 @@ mvn spring-boot:run
 docker compose up --build
 ```
 
-## Screenshots
-
-Not applicable for backend-only repository. API exploration can be done via Swagger UI.
 
 ## Technology Stack
 
