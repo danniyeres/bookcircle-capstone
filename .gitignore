@@ -1,8 +1,22 @@
-/target
-/.idea
+# Build artifacts
+/target/
+
+# IDE and editor files
+/.idea/
+/.vscode/
 *.iml
-/data
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local data/logs
+/data/
 *.log
 
-DemoDock.md
+# Local Maven cache that should never be committed from project root
+/.m2/
 
+# OS files
+.DS_Store

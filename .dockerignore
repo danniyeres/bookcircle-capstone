@@ -1,0 +1,12 @@
+.git
+.gitignore
+.idea
+target
+*.iml
+README.md
+AUDIT.md
+docs/
+tests/
+assets/
+docker-compose.yml
+.env

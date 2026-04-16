@@ -48,6 +48,11 @@
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
+      <dependency>
+          <groupId>io.github.cdimascio</groupId>
+          <artifactId>java-dotenv</artifactId>
+          <version>5.2.2</version>
+      </dependency>
 
 
     <dependency>
@@ -68,11 +73,14 @@
       <scope>runtime</scope>
     </dependency>
 
+
     <dependency>
       <groupId>com.uber</groupId>
       <artifactId>h3</artifactId>
       <version>${h3.version}</version>
     </dependency>
+
+
 
 
     <dependency>
@@ -105,6 +113,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring.boot.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
