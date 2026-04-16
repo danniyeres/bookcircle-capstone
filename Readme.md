@@ -29,7 +29,7 @@ Readers often struggle to find nearby communities for the same book, and group d
 1. Clone the repository:
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/danniyeres/bookcircle-capstone.git
 cd bookcircle-capstone-backend
 ```
 
