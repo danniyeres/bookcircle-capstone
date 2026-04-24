@@ -19,6 +19,12 @@ public class Book {
     private String author;
     private String isbn;
 
+    @Column(name = "cover_url")
+    private String coverUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "total_chapters")
     private Integer totalChapters;
 }

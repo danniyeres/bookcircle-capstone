@@ -21,6 +21,14 @@ public class BookController {
         return bookService.findBooks(query);
     }
 
+    @GetMapping("/{id}")
+    public Book getBook(@RequestParam(required = false) @PathVariable Long id) {
+        return bookService.findBooks(null).stream()
+                .filter(b -> b.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public Book createBook(@RequestBody Book book) {

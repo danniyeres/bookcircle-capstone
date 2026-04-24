@@ -23,7 +23,6 @@ public class CommentController {
         return commentService.create(AuthUtil.principal().userId(), req);
     }
 
-    // ABAC: spoiler-protected visibility
     @GetMapping
     public List<CommentDtos.CommentResponse> visible(@RequestParam Long roomId) {
         return commentService.getVisibleComments(AuthUtil.principal().userId(), roomId);

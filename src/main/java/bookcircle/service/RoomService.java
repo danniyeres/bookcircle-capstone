@@ -122,4 +122,17 @@ public class RoomService {
         log.info("Rooms fetched by h3Index={} count={}", h3Index, rooms.size());
         return rooms;
     }
+
+    @Transactional(readOnly = true)
+    public List<RoomDtos.RoomResponse> getRooms () {
+        return roomRepository.findAll().stream()
+                .map(r -> new RoomDtos.RoomResponse(
+                        r.getId(),
+                        r.getName(),
+                        r.getBook().getId(),
+                        r.getBook().getTitle(),
+                        r.getH3Index(),
+                        r.getOwner().getId()))
+                .toList();
+    }
 }

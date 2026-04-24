@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bookcircle-db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-tiny-glitter-alwvzc7s-pooler.c-3.eu-central-1.aws.neon.tech:5432/neondb?sslmode=require&channel_binding=require}
+    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
+    password: ${SPRING_DATASOURCE_PASSWORD:npg_Gri0T3HPCOQo}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -21,6 +21,14 @@ app:
     accessTokenMinutes: 60
   h3:
     defaultResolution: 9
+  books:
+    seedOnEmpty: ${APP_BOOKS_SEED_ON_EMPTY:true}
+    seedFile: ${APP_BOOKS_SEED_FILE:books.json}
+    googleApiKey: ${GOOGLE_BOOKS_API_KEY:}
+    maxResultsPerQuery: ${APP_BOOKS_MAX_RESULTS_PER_QUERY:1}
+    requestDelayMs: ${APP_BOOKS_REQUEST_DELAY_MS:150}
+    maxAttempts: ${APP_BOOKS_MAX_ATTEMPTS:3}
+    retryBackoffMs: ${APP_BOOKS_RETRY_BACKOFF_MS:600}
 
 logging:
   level:

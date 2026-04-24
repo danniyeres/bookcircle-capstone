@@ -28,7 +28,12 @@ public class RoomController {
         roomService.joinRoom(AuthUtil.principal().userId(), roomId);
     }
 
-    // H3 query requirement
+    @GetMapping
+    public List<RoomDtos.RoomResponse> getRooms(){
+        return roomService.getRooms();
+    }
+
+
     @GetMapping("/by-h3")
     public List<RoomDtos.RoomResponse> byH3(@RequestParam String h3Index) {
         return roomService.findByH3(h3Index);

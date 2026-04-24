@@ -22,14 +22,12 @@ public class AdminController {
         this.statsRepository = statsRepository;
     }
 
-    // Audit log requirement
     @GetMapping("/audit")
     @PreAuthorize("hasRole('ADMIN')")
     public Object audit() {
         return auditLogRepository.findTop100ByOrderByTsDesc();
     }
 
-    // Analytics / aggregated table requirement
     @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     @GetMapping("/stats/{roomId}")
     public RoomStatsResponse stats(@PathVariable Long roomId) {
