@@ -40,6 +40,11 @@ public class RoomController {
         return roomService.findByH3(h3Index);
     }
 
+    @GetMapping("/{roomId}/members/progress")
+    public RoomDtos.RoomMembersProgressListResponse membersProgress(@PathVariable Long roomId) {
+        return roomService.getMembersProgress(AuthUtil.principal().userId(), roomId);
+    }
+
     @DeleteMapping("/{roomId}")
     @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public void delete(@PathVariable Long roomId) {

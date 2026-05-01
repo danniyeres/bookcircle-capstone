@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.time.Instant;
+import java.util.List;
+
 public class RoomDtos {
 
     public record CreateRoomRequest(
@@ -27,5 +30,19 @@ public class RoomDtos {
             String bookTitle,
             String h3Index,
             Long ownerId
+    ) {}
+
+    public record RoomMemberProgressResponse(
+            Long userId,
+            String email,
+            String nickname,
+            String roomRole,
+            int chapterNumber,
+            Instant progressUpdatedAt
+    ) {}
+
+    public record RoomMembersProgressListResponse(
+            Long roomId,
+            List<RoomMemberProgressResponse> members
     ) {}
 }

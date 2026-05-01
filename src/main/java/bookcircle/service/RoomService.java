@@ -3,6 +3,7 @@ package bookcircle.service;
 import bookcircle.domain.RoomMemberRole;
 import bookcircle.dto.RoomDtos;
 import bookcircle.entity.Book;
+import bookcircle.entity.ReadingProgress;
 import bookcircle.entity.Room;
 import bookcircle.entity.RoomMember;
 import bookcircle.entity.User;
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -140,6 +144,41 @@ public class RoomService {
                         r.getH3Index(),
                         r.getOwner().getId()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RoomDtos.RoomMembersProgressListResponse getMembersProgress(Long actorUserId, Long roomId) {
+        log.info("Members progress requested actorUserId={} roomId={}", actorUserId, roomId);
+
+        if (roomMemberRepository.findByRoom_IdAndUser_Id(roomId, actorUserId).isEmpty()) {
+            log.warn("Members progress rejected: user is not room member actorUserId={} roomId={}",
+                    actorUserId, roomId);
+            throw new ApiException(HttpStatus.FORBIDDEN, "You are not a member of this room");
+        }
+
+        if (!roomRepository.existsById(roomId)) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Room not found");
+        }
+
+        Map<Long, ReadingProgress> progressByUserId = progressRepository.findByRoom_Id(roomId).stream()
+                .collect(Collectors.toMap(p -> p.getUser().getId(), Function.identity()));
+
+        List<RoomDtos.RoomMemberProgressResponse> members = roomMemberRepository.findByRoom_Id(roomId).stream()
+                .map(m -> {
+                    ReadingProgress progress = progressByUserId.get(m.getUser().getId());
+                    int chapterNumber = progress == null ? 0 : progress.getChapterNumber();
+                    return new RoomDtos.RoomMemberProgressResponse(
+                            m.getUser().getId(),
+                            m.getUser().getEmail(),
+                            m.getUser().getNickname(),
+                            m.getRole().name(),
+                            chapterNumber,
+                            progress == null ? null : progress.getUpdatedAt()
+                    );
+                })
+                .toList();
+
+        return new RoomDtos.RoomMembersProgressListResponse(roomId, members);
     }
 
     @Transactional
