@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByH3Index(String h3Index);
+    List<Room> findByBook_Id(Long bookId);
 }

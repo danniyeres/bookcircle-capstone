@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -23,7 +24,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     private static final String REQUEST_ID_HEADER = "X-Request-Id";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NotNull HttpServletRequest request, HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         String requestId = resolveRequestId(request);
         MDC.put(REQUEST_ID_MDC_KEY, requestId);

@@ -8,6 +8,9 @@ import bookcircle.entity.RoomMember;
 import bookcircle.entity.User;
 import bookcircle.exception.ApiException;
 import bookcircle.repo.BookRepository;
+import bookcircle.repo.CommentRepository;
+import bookcircle.repo.ReadingProgressRepository;
+import bookcircle.repo.RoomActivityStatsRepository;
 import bookcircle.repo.RoomMemberRepository;
 import bookcircle.repo.RoomRepository;
 import bookcircle.repo.UserRepository;
@@ -32,6 +35,9 @@ public class RoomService {
     private final H3Service h3Service;
     private final AuditService auditService;
     private final BookRepository bookRepository;
+    private final CommentRepository commentRepository;
+    private final ReadingProgressRepository progressRepository;
+    private final RoomActivityStatsRepository statsRepository;
 
 
     @Transactional
@@ -134,5 +140,22 @@ public class RoomService {
                         r.getH3Index(),
                         r.getOwner().getId()))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteRoom(Long actorUserId, Long roomId) {
+        log.info("Delete room requested actorUserId={} roomId={}", actorUserId, roomId);
+
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        commentRepository.deleteByRoom_Id(roomId);
+        progressRepository.deleteByRoom_Id(roomId);
+        roomMemberRepository.deleteByRoom_Id(roomId);
+        statsRepository.deleteById(roomId);
+        roomRepository.delete(room);
+
+        auditService.log(actorUserId, "ROOM_DELETED", "Room", roomId, null);
+        log.info("Room deleted actorUserId={} roomId={}", actorUserId, roomId);
     }
 }

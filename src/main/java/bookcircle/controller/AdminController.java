@@ -1,10 +1,14 @@
 package bookcircle.controller;
 
 
+import bookcircle.dto.AdminDtos;
 import bookcircle.dto.RoomStatsResponse;
 import bookcircle.entity.RoomActivityStats;
 import bookcircle.repo.AuditLogRepository;
 import bookcircle.repo.RoomActivityStatsRepository;
+import bookcircle.service.AuthService;
+import bookcircle.util.AuthUtil;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +20,16 @@ public class AdminController {
 
     private final AuditLogRepository auditLogRepository;
     private final RoomActivityStatsRepository statsRepository;
+    private final AuthService authService;
 
-    public AdminController(AuditLogRepository auditLogRepository, RoomActivityStatsRepository statsRepository) {
+    public AdminController(
+            AuditLogRepository auditLogRepository,
+            RoomActivityStatsRepository statsRepository,
+            AuthService authService
+    ) {
         this.auditLogRepository = auditLogRepository;
         this.statsRepository = statsRepository;
+        this.authService = authService;
     }
 
     @GetMapping("/audit")
@@ -44,5 +54,14 @@ public class AdminController {
                 s.getProgressUpdatesCount(),
                 s.getLastEventAt()
         );
+    }
+
+    @PatchMapping("/users/{userId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public AdminDtos.UserRoleResponse updateUserRole(
+            @PathVariable Long userId,
+            @Valid @RequestBody AdminDtos.UpdateUserRoleRequest req
+    ) {
+        return authService.updateUserRole(AuthUtil.principal().userId(), userId, req.role());
     }
 }

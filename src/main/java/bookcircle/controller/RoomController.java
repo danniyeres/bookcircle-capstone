@@ -4,6 +4,7 @@ import bookcircle.dto.RoomDtos;
 import bookcircle.service.RoomService;
 import bookcircle.util.AuthUtil;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,11 @@ public class RoomController {
     @GetMapping("/by-h3")
     public List<RoomDtos.RoomResponse> byH3(@RequestParam String h3Index) {
         return roomService.findByH3(h3Index);
+    }
+
+    @DeleteMapping("/{roomId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
+    public void delete(@PathVariable Long roomId) {
+        roomService.deleteRoom(AuthUtil.principal().userId(), roomId);
     }
 }

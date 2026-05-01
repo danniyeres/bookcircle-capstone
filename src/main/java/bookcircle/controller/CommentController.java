@@ -4,6 +4,7 @@ import bookcircle.dto.CommentDtos;
 import bookcircle.service.CommentService;
 import bookcircle.util.AuthUtil;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,5 +27,11 @@ public class CommentController {
     @GetMapping
     public List<CommentDtos.CommentResponse> visible(@RequestParam Long roomId) {
         return commentService.getVisibleComments(AuthUtil.principal().userId(), roomId);
+    }
+
+    @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
+    public void delete(@PathVariable Long commentId) {
+        commentService.deleteComment(AuthUtil.principal().userId(), commentId);
     }
 }

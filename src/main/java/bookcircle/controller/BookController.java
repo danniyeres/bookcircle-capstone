@@ -2,6 +2,7 @@ package bookcircle.controller;
 
 import bookcircle.entity.Book;
 import bookcircle.service.BookService;
+import bookcircle.util.AuthUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +34,11 @@ public class BookController {
     @PreAuthorize("hasRole('ADMIN')")
     public Book createBook(@RequestBody Book book) {
         return bookService.createBook(book);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(AuthUtil.principal().userId(), id);
     }
 }

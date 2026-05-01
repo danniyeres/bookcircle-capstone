@@ -92,4 +92,17 @@ public class CommentService {
                 actorUserId, roomId, current, visibleComments.size());
         return visibleComments;
     }
+
+    @Transactional
+    public void deleteComment(Long actorUserId, Long commentId) {
+        log.info("Delete comment requested actorUserId={} commentId={}", actorUserId, commentId);
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Comment not found"));
+        Long roomId = comment.getRoom().getId();
+
+        commentRepository.delete(comment);
+        auditService.log(actorUserId, "COMMENT_DELETED", "Comment", commentId, "roomId=" + roomId);
+        log.info("Comment deleted actorUserId={} commentId={}", actorUserId, commentId);
+    }
 }
