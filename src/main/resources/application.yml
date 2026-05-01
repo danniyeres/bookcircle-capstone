@@ -1,9 +1,14 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-tiny-glitter-alwvzc7s-pooler.c-3.eu-central-1.aws.neon.tech:5432/neondb?sslmode=require&channel_binding=require}
-    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
-    password: ${SPRING_DATASOURCE_PASSWORD:npg_Gri0T3HPCOQo}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,7 +22,7 @@ server:
 
 app:
   jwt:
-    secret: "furew9doij2130jrj340r2ikeik23j9r04j9j1ir90ei3290e"
+    secret: ${JWT_SECRET_KEY}
     accessTokenMinutes: 60
   h3:
     defaultResolution: 9
