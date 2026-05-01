@@ -65,6 +65,21 @@ public class UserService {
             }
         }
 
+        if (req.phoneNumber() != null) {
+            String normalizedPhoneNumber = req.phoneNumber().trim();
+            if (normalizedPhoneNumber.isBlank()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Phone number cannot be blank");
+            }
+            boolean phoneNumberChanged = !normalizedPhoneNumber.equals(user.getPhoneNumber());
+            if (phoneNumberChanged && userRepository.existsByPhoneNumber(normalizedPhoneNumber)) {
+                throw new ApiException(HttpStatus.CONFLICT, "Phone number already taken");
+            }
+            if (phoneNumberChanged) {
+                user.setPhoneNumber(normalizedPhoneNumber);
+                changedFields.add("phoneNumber");
+            }
+        }
+
         boolean hasCurrentPassword = req.currentPassword() != null && !req.currentPassword().isBlank();
         boolean hasNewPassword = req.newPassword() != null && !req.newPassword().isBlank();
         if (hasCurrentPassword != hasNewPassword) {
@@ -107,6 +122,7 @@ public class UserService {
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
+                user.getPhoneNumber(),
                 user.getRole().name(),
                 user.getCreatedAt()
         );
