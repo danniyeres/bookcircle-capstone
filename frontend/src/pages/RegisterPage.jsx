@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../api/authApi";
+import { getCurrentUser, registerUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
@@ -42,12 +42,22 @@ function RegisterPage() {
                 throw new Error("Unexpected server response");
             }
 
+            let profile;
+
+            try {
+                profile = await getCurrentUser();
+            } catch {
+                profile = null;
+            }
+
             login({
                 token: response.accessToken,
                 userId: response.userId,
                 role: response.role,
-                email: form.email,
+                email: profile?.email || form.email,
+                phone: profile?.phoneNumber || null,
             });
+
 
             navigate("/", { replace: true });
         } catch (err) {

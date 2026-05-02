@@ -1,53 +1,61 @@
 import { create } from "zustand";
 
 export const useAuthStore = create((set) => ({
-  token: localStorage.getItem("token") || null,
-  userId: localStorage.getItem("userId") || null,
-  role: localStorage.getItem("role") || null,
-  email: localStorage.getItem("email") || null,
-  phone: localStorage.getItem("phone") || null,
+    token: localStorage.getItem("token") || null,
+    userId: localStorage.getItem("userId") || null,
+    role: localStorage.getItem("role") || null,
+    email: localStorage.getItem("email") || null,
+    phone: localStorage.getItem("phone") || null,
 
-  login: ({ token, userId, role, email }) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("userId", String(userId));
-    localStorage.setItem("role", role);
+    login: ({ token, userId, role, email, phone }) => {
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", String(userId));
+        localStorage.setItem("role", role);
 
-    if (email) {
-      localStorage.setItem("email", email);
-    }
+        if (email) {
+            localStorage.setItem("email", email);
+        } else {
+            localStorage.removeItem("email");
+        }
 
-    set({
-      token,
-      userId: String(userId),
-      role,
-      email: email || null,
-      phone: localStorage.getItem("phone") || null,
-    });
-  },
+        if (phone) {
+            localStorage.setItem("phone", phone);
+        } else {
+            localStorage.removeItem("phone");
+        }
 
-  updateProfile: ({ email, phone }) => {
-    localStorage.setItem("email", email);
-    localStorage.setItem("phone", phone);
+        set({
+            token,
+            userId: String(userId),
+            role,
+            email: email || null,
+            phone: phone || null,
+        });
+    },
 
-    set({
-      email,
-      phone,
-    });
-  },
+    updateProfile: ({ email, phone }) => {
+        localStorage.setItem("email", email);
+        localStorage.setItem("phone", phone);
 
-  logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("role");
-    localStorage.removeItem("email");
-    localStorage.removeItem("phone");
+        set({
+            email,
+            phone,
+        });
+    },
 
-    set({
-      token: null,
-      userId: null,
-      role: null,
-      email: null,
-      phone: null,
-    });
-  },
+    logout: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("role");
+        localStorage.removeItem("email");
+        localStorage.removeItem("phone");
+
+        set({
+            token: null,
+            userId: null,
+            role: null,
+            email: null,
+            phone: null,
+        });
+    },
 }));
