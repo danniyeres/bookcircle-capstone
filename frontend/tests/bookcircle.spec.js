@@ -1,9 +1,126 @@
 import { test, expect } from "@playwright/test";
 
 const testUser = {
-  email: "zasulananuarbek3@gmail.com",
-  password: "jasikjjj",
+  email: "playwright.user@example.com",
+  password: "Password123!",
 };
+
+const mockBooks = [
+  {
+    id: 1,
+    title: "1984",
+    author: "George Orwell",
+    isbn: "9780451524935",
+    coverUrl: "",
+    description: "Dystopian novel",
+    totalChapters: 24,
+  },
+  {
+    id: 2,
+    title: "Clean Code",
+    author: "Robert C. Martin",
+    isbn: "9780132350884",
+    coverUrl: "",
+    description: "Software craftsmanship",
+    totalChapters: 17,
+  },
+];
+
+const mockRooms = [
+  {
+    id: 101,
+    name: "1984 Discussion Room",
+    bookId: 1,
+    bookTitle: "1984",
+    h3Index: "89283082803ffff",
+  },
+];
+
+async function setupApiMocks(page) {
+  await page.route("**/auth/login", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.fallback();
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        accessToken: "mock-jwt-token",
+        tokenType: "Bearer",
+        userId: 777,
+        role: "USER",
+      }),
+    });
+  });
+
+  await page.route("**/books**", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.fallback();
+      return;
+    }
+
+    const requestUrl = new URL(route.request().url());
+    const query = (requestUrl.searchParams.get("query") || "").trim().toLowerCase();
+    const books = query
+      ? mockBooks.filter((book) => book.title.toLowerCase().includes(query))
+      : mockBooks;
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(books),
+    });
+  });
+
+  await page.route("**/rooms**", async (route) => {
+    const { method } = route.request();
+    const requestUrl = new URL(route.request().url());
+
+    const isRoomsListEndpoint = requestUrl.pathname.endsWith("/rooms");
+    const isJoinEndpoint = /\/rooms\/\d+\/join$/.test(requestUrl.pathname);
+
+    if (method === "GET" && isRoomsListEndpoint) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(mockRooms),
+      });
+      return;
+    }
+
+    if (method === "POST" && isJoinEndpoint) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "",
+      });
+      return;
+    }
+
+    if (method === "POST" && isRoomsListEndpoint) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: 202,
+          name: "Playwright Test Room",
+          bookId: 1,
+          bookTitle: "1984",
+          h3Index: "89283082803ffff",
+        }),
+      });
+      return;
+    }
+
+    await route.fallback();
+  });
+}
+
+test.beforeEach(async ({ page }) => {
+  await setupApiMocks(page);
+});
 
 async function login(page) {
   await page.goto("/login");
@@ -13,15 +130,6 @@ async function login(page) {
   await page.getByPlaceholder("Enter your password").fill(testUser.password);
 
   await page.getByRole("button", { name: "Sign In" }).click();
-
-  // ❗ проверяем: либо успех, либо ошибка
-  const error = page.getByText("Invalid credentials");
-
-  if (await error.isVisible().catch(() => false)) {
-    throw new Error("Login failed: invalid credentials");
-  }
-
-  // ✅ если всё ок — ждём редирект
   await expect(page).toHaveURL("/");
 }
 
