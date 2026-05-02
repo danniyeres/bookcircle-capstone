@@ -1,9 +1,9 @@
 services:
   app:
-    build: .
-    container_name: bookcircle-backend
+    build: backend
+    container_name: bookcircle-capstone-backend
     restart: unless-stopped
     env_file:
-      - .env
+      - backend/.env
     ports:
       - "8080:8080"
