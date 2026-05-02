@@ -41,11 +41,6 @@ cp .env.example .env
 
 3. Update `.env` values for your PostgreSQL instance.
 
-4. Run the app:
-
-```bash
-mvn spring-boot:run
-```
 
 ## Usage
 
@@ -77,3 +72,9 @@ docker compose up --build
 - H3 (`com.uber:h3`)
 - Springdoc OpenAPI
 - Docker / Docker Compose
+
+
+## Team members
+- Daniyar Yeleussiz 230103200
+- Nuray Praliyeva 230103057
+- Anuarbek Zhasulan 230103166
