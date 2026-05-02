@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser, updateCurrentUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -18,6 +20,39 @@ function ProfilePage() {
   });
 
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(false);
+
+  useEffect(() => {
+        const fetchProfile = async () => {
+            setIsFetchingProfile(true);
+            setError("");
+
+            try {
+                const response = await getCurrentUser();
+                const nextEmail = response?.email || "";
+                const nextPhone = response?.phoneNumber || "";
+
+                setForm({
+                    email: nextEmail,
+                    phone: nextPhone,
+                });
+
+                updateProfile({
+                    email: nextEmail,
+                    phone: nextPhone,
+                });
+            } catch (err) {
+                const message = getApiErrorMessage(err, "Failed to load profile");
+                setError(message);
+            } finally {
+                setIsFetchingProfile(false);
+            }
+        };
+
+        fetchProfile();
+    }, [updateProfile]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -28,16 +63,41 @@ function ProfilePage() {
     }));
 
     setSuccess("");
+    setError("");
   };
 
-  const handleSave = () => {
-    updateProfile({
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-    });
+    const handleSave = async () => {
+        setSuccess("");
+        setError("");
+        setIsLoading(true);
 
-    setSuccess("Profile saved successfully");
-  };
+        const payload = {
+            email: form.email.trim(),
+            phoneNumber: form.phone.trim(),
+        };
+
+        try {
+            const response = await updateCurrentUser(payload);
+            const nextEmail = response?.email || payload.email;
+            const nextPhone = response?.phoneNumber || payload.phoneNumber;
+
+            updateProfile({
+                email: nextEmail,
+                phone: nextPhone,
+            });
+
+            setForm({
+                email: nextEmail,
+                phone: nextPhone,
+            });
+            setSuccess("Profile saved successfully");
+        } catch (err) {
+            const message = getApiErrorMessage(err, "Failed to update profile");
+            setError(message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
   const handleLogout = () => {
     logout();
@@ -139,10 +199,21 @@ function ProfilePage() {
           </p>
         ) : null}
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <button className="button" type="button" onClick={handleSave}>
-            Save
-          </button>
+          {error ? (
+              <p className="helper-text" style={{ color: "#ef4444" }}>
+                  {error}
+              </p>
+          ) : null}
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button
+                  className="button"
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isLoading || isFetchingProfile}
+              >
+                  {isLoading ? "Saving..." : "Save"}
+              </button>
 
           <button
             className="button button-secondary"
