@@ -8,8 +8,6 @@ public class BaseController {
 
     @GetMapping
     public String hello() {
-        return """
-                Bookcircle API is running. Please access /auth, /users, /books, or /comments endpoints.
-                """;
+        return "Bookcircle API is running. Please access /auth, /users, /books, or /comments endpoints.";
     }
 }
